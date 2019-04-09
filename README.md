@@ -3,7 +3,7 @@ This repo contains arduino and raspberry pi code for automatic flower watering s
 
 ## Hardware
 Hardware consists of:
-* Rasberry pi 3B+
+* RasberryPi 3B+
 * Arduino nano
 * Water valve, 8mm diameter
 * Soil moisture sensor
