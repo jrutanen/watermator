@@ -3,7 +3,7 @@
 import sys
 import os
 import socket
-from IoT_Can import *
+from watermator import *
 from constants import *
 
 if len(sys.argv) < 2:
@@ -28,8 +28,9 @@ else:
 			os.remove('logs/iot_can.log')
 
 		#Start IoT Can
-		os.system('python3 IoT_Can.py > logs/iot_can.log &')
-		print("IoT Can Started. Stop service by giving argument stop.")
+		os.system('python3 watermator.py &')
+		print("Watermator Started.")
+		print("Stop service by giving argument stop.")
 
 	if str(sys.argv[1]) == "stop":
 		#Stop IoT Can
@@ -46,4 +47,4 @@ else:
 			unix_socket.sendall(message.encode())
 		finally:
 			unix_socket.close()
-			print("IoT Can Stopped.")
+			print("Watermator Stopped.")

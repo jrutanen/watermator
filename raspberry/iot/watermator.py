@@ -16,9 +16,7 @@ import datetime
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 from personal import *
-from Battery import *
-from WaterMeter import *
-from TrashCan import *
+from WateringDevice import *
 from ThingSpeak import *
 from Mqtt import *
 from constants import *
@@ -56,18 +54,9 @@ def check_socket_connection(unix_socket):
 
 def on_data_received(\
     object_type, object_id, value, alarm_severity, field, topic):
-    if object_type == Battery:
-        print("do some battery stuff")
+    if object_type == WateringDevice:
+        process_watering_data(object_id, value, alarm_severity)
         thing_speak.publish(field, value)
-
-    if object_type == WaterMeter:
-        print("do some water meter stuff")
-        thing_speak.publish(field, value)
-
-    if object_type == TrashCan:
-        process_trash_can_data(object_id, value, alarm_severity)
-
-    print(object_id, value, alarm_severity)
 
     if alarm_severity > ALARM_NONE:
         on_alarm(object_type, object_id, value, alarm_severity)
@@ -76,27 +65,19 @@ def on_alarm(object_type, object_id, value, alarm_severity):
     #Do something exciting
     return 0
 
-def process_trash_can_data(object_id, value, alarm_severity):
-    if value[0] == "Temp":
-        data = value[1]
-        thing_speak.publish("field2", data)
-        mqtt.publish("DATA", data, "IoT_Can/3/temp")
-        if alarm_severity == ALARM_CRITICAL:
-            mqtt.publish("DISPLAY", "Warning: Freezing temp!")
-    elif value[0] == "Distance":
+def process_watering_data(object_id, value, alarm_severity):
+    if value[0] == "moisture":
         data = value[1]
         thing_speak.publish("field1", data)
-        mqtt.publish("DATA", data, "IoT_Can/3/trashlevel")        
-        if alarm_severity == ALARM_CRITICAL:
-            mqtt.publish("DISPLAY", "Trashcan is almost full!")
-    elif value[0] == "Lock":
+        #mqtt.publish("DATA", data, "IoT_Can/3/temp")
+        #if alarm_severity == ALARM_CRITICAL:
+        #    mqtt.publish("DISPLAY", "Warning: Freezing temp!")
+    elif value[0] == "valve":
         data = value[1]
-        thing_speak.publish("field3", data)
-        mqtt.publish("DATA", data, "IoT_Can/3/3/1/toilet")
-        if alarm_severity == ALARM_CRITICAL:
-            mqtt.publish("DISPLAY", "Toilet: Occupied!")
-        else:
-            mqtt.publish("DISPLAY", "Toilet: Free!")            
+        thing_speak.publish("field2", data)
+        #mqtt.publish("DATA", data, "IoT_Can/3/trashlevel")        
+        #if alarm_severity == ALARM_CRITICAL:
+        #    mqtt.publish("DISPLAY", "Trashcan is almost full!")
 
 def startit():
     while True:
@@ -122,33 +103,14 @@ if __name__ == "__main__":
     devices = []
 
     #Add connected devices
-    #Add Two Battery Devices and start them
-#    battery_one = Battery(\
-#        name="BatteryOne", field="field1", max_voltage=12.00)
-#    battery_one.set_serial_conn(
-#        conn_port='/dev/ttyUSB0', conn_baudrate=9600, conn_timeout=100)
-#    battery_one.start(on_data_received)
-#    devices.append(battery_one)
-
-    trashcan_one = TrashCan(\
-        name="ThrashCan", field="field2",)
-    trashcan_one.set_serial_conn(
-        conn_port='/dev/ttyUSB2', conn_baudrate=9600, conn_timeout=100)
-    trashcan_one.set_reporting_frequency(60)
-    trashcan_one.start(on_data_received)
-    devices.append(trashcan_one)
-
-    #Add Water Meter and start it
-#    water_meter = WaterMeter(name="WaterOne", field="field3")
-#    water_meter.set_serial_conn(
-#        conn_port='/dev/ttyUSB2', conn_baudrate=9600, conn_timeout=100)
-#    water_meter.start(on_data_received)
-#    devices.append(water_meter)
+    watering_device = WateringDevice(\
+        name="Watering Device", field="field1",)
+    watering_device.set_serial_conn(
+        conn_port='/dev/ttyUSB0', conn_baudrate=9600, conn_timeout=100)
+    watering_device.start(on_data_received)
+    devices.append(watering_device)
 
 #    startit()
 
     sleep(60)
-    trashcan_one.stop()
-#    battery_one.stop()
-#    battery_two.stop()
-#    water_meter.stop()
+    watering_device.stop()
