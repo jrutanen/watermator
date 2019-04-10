@@ -1,4 +1,5 @@
 personal.py
-__pycache__/
 *.jpg
 *.png
+**/__pycache__/
+**/logs/
