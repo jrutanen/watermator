@@ -1,2 +1,4 @@
 personal.py
 __pycache__/
+*.jpg
+*.png
