@@ -79,7 +79,7 @@ def process_watering_data(object_id, value, alarm_severity):
         #if alarm_severity == ALARM_CRITICAL:
         #    mqtt.publish("DISPLAY", "Trashcan is almost full!")
 
-def startit():
+def run():
     while True:
         check_socket_connection(unix_socket)
 
@@ -107,10 +107,12 @@ if __name__ == "__main__":
         name="Watering Device", field="field1",)
     watering_device.set_serial_conn(
         conn_port='/dev/ttyUSB0', conn_baudrate=9600, conn_timeout=100)
+    watering_device.set_reporting_frequency(600) #every 10 minutes
     watering_device.start(on_data_received)
     devices.append(watering_device)
 
-#    startit()
+    #Start service
+    run()
 
-    sleep(60)
-    watering_device.stop()
+#    sleep(60)
+#    watering_device.stop()
